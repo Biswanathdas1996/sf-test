@@ -1,67 +1,131 @@
+/* Oktawave branding: Primary #2DB5DA, Secondary #939598 */
+/* Typography: Proxima Nova, Montserrat */
+
+.modal-header {
+  background: #2db5da;
+}
+
+.modal-title {
+  color: #ffffff;
+  font-family: "Montserrat", "Proxima Nova", sans-serif;
+}
+
+.modal-footer {
+  border-top: 2px solid #2db5da;
+}
+
 .review-summary {
-    background: #f3f3f3;
+  background: linear-gradient(135deg, #f0fafe 0%, #f7f7f7 100%);
+  border: 1px solid #2db5da;
+  border-radius: 8px;
 }
 
 .average-rating {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #0176d3;
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2db5da;
+  font-family: "Montserrat", "Proxima Nova", sans-serif;
+}
+
+.review-count-text {
+  color: #939598;
 }
 
 .star-container {
-    display: flex;
-    gap: 0.125rem;
-    margin: 0.5rem 0;
+  display: flex;
+  gap: 0.125rem;
+  margin: 0.5rem 0;
 }
 
 .star-container lightning-icon.true {
-    color: #ffb75d;
+  color: #ffb75d;
 }
 
 .star-container lightning-icon {
-    color: #dddbda;
+  color: #dddbda;
 }
 
 .reviews-container {
-    max-height: 500px;
-    overflow-y: auto;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 .review-item {
-    border-left: 3px solid #0176d3;
+  border-left: 3px solid #2db5da;
+  border-radius: 4px;
+  transition: box-shadow 0.2s ease;
+}
+
+.review-item:hover {
+  box-shadow: 0 2px 6px rgba(45, 181, 218, 0.15);
 }
 
 .reviewer-name {
-    font-weight: bold;
-    color: #080707;
+  font-weight: bold;
+  color: #080707;
+  font-family: "Montserrat", "Proxima Nova", sans-serif;
+}
+
+.review-date {
+  color: #939598;
 }
 
 .rating-text {
-    font-size: 0.875rem;
-    color: #3e3e3c;
-    font-weight: 600;
+  font-size: 0.875rem;
+  color: #3e3e3c;
+  font-weight: 600;
 }
 
 .review-comment {
-    line-height: 1.6;
-    color: #3e3e3c;
-    white-space: pre-wrap;
+  line-height: 1.6;
+  color: #3e3e3c;
+  white-space: pre-wrap;
+}
+
+/* Review Form */
+.review-form {
+  background: #f9fdfe;
+  border: 1px solid #2db5da;
+  border-radius: 8px;
+}
+
+.form-heading {
+  color: #2db5da;
+  font-family: "Montserrat", "Proxima Nova", sans-serif;
+  font-weight: 600;
+}
+
+.no-reviews-text {
+  color: #939598;
+}
+
+/* Success Toast */
+.success-toast {
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.success-toast .slds-notify__content {
+  display: flex;
+  align-items: center;
 }
 
 /* Scrollbar styling */
 .reviews-container::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 .reviews-container::-webkit-scrollbar-track {
-    background: #f3f3f3;
+  background: #f3f3f3;
 }
 
 .reviews-container::-webkit-scrollbar-thumb {
-    background: #dddbda;
-    border-radius: 4px;
+  background: #939598;
+  border-radius: 4px;
 }
 
 .reviews-container::-webkit-scrollbar-thumb:hover {
-    background: #c9c7c5;
+  background: #7a7a7d;
 }

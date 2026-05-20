@@ -1,138 +1,263 @@
 <template>
-    <section
-        role="dialog"
-        tabindex="-1"
-        aria-modal="true"
-        aria-labelledby="modal-heading-01"
-        class="slds-modal slds-fade-in-open slds-modal_large"
-    >
-        <div class="slds-modal__container">
-            <!-- Modal Header -->
-            <header class="slds-modal__header">
-                <button
-                    class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
-                    title="Close"
-                    onclick={handleClose}
-                >
-                    <lightning-icon icon-name="utility:close" size="small" alternative-text="Close"></lightning-icon>
-                    <span class="slds-assistive-text">Close</span>
-                </button>
-                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
-                    <template lwc:if={book}>
-                        Reviews for "{book.Name}"
-                    </template>
-                    <template lwc:else>
-                        Book Reviews
-                    </template>
-                </h2>
-            </header>
+  <section
+    role="dialog"
+    tabindex="-1"
+    aria-modal="true"
+    aria-labelledby="modal-heading-01"
+    class="slds-modal slds-fade-in-open slds-modal_large"
+  >
+    <div class="slds-modal__container">
+      <!-- Modal Header -->
+      <header class="slds-modal__header modal-header">
+        <button
+          class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+          title="Close"
+          onclick={handleClose}
+        >
+          <lightning-icon
+            icon-name="utility:close"
+            size="small"
+            alternative-text="Close"
+          ></lightning-icon>
+          <span class="slds-assistive-text">Close</span>
+        </button>
+        <h2
+          id="modal-heading-01"
+          class="slds-text-heading_medium slds-hyphenate modal-title"
+        >
+          <template lwc:if={book}> Reviews for "{book.Name}" </template>
+          <template lwc:else> Book Reviews </template>
+        </h2>
+      </header>
 
-            <!-- Modal Body -->
-            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-                <!-- Loading Spinner -->
-                <template lwc:if={isLoading}>
-                    <div class="slds-align_absolute-center slds-p-around_large">
-                        <lightning-spinner alternative-text="Loading reviews" size="medium"></lightning-spinner>
-                    </div>
-                </template>
+      <!-- Modal Body -->
+      <div
+        class="slds-modal__content slds-p-around_medium"
+        id="modal-content-id-1"
+      >
+        <!-- Loading Spinner -->
+        <template lwc:if={isLoading}>
+          <div class="slds-align_absolute-center slds-p-around_large">
+            <lightning-spinner
+              alternative-text="Loading reviews"
+              size="medium"
+            ></lightning-spinner>
+          </div>
+        </template>
 
-                <!-- Error Message -->
-                <template lwc:if={hasError}>
-                    <div class="slds-text-color_error slds-p-around_medium">
-                        <lightning-icon
-                            icon-name="utility:error"
-                            size="small"
-                            variant="error"
-                            class="slds-m-right_x-small"
-                        ></lightning-icon>
-                        Error loading reviews. Please try again.
-                    </div>
-                </template>
+        <!-- Error Message -->
+        <template lwc:if={hasError}>
+          <div class="slds-text-color_error slds-p-around_medium">
+            <lightning-icon
+              icon-name="utility:error"
+              size="small"
+              variant="error"
+              class="slds-m-right_x-small"
+            ></lightning-icon>
+            Error loading reviews. Please try again.
+          </div>
+        </template>
 
-                <!-- Reviews Summary -->
-                <template lwc:if={hasReviews}>
-                    <div class="slds-box slds-box_x-small slds-m-bottom_medium review-summary">
-                        <div class="slds-grid slds-grid_vertical-align-center">
-                            <div class="slds-col">
-                                <div class="slds-text-heading_large average-rating">{averageRating}</div>
-                                <div class="star-container">
-                                    <template for:each={averageStars} for:item="star">
-                                        <lightning-icon
-                                            key={star.id}
-                                            icon-name="utility:star"
-                                            size="small"
-                                            class={star.filled}
-                                        ></lightning-icon>
-                                    </template>
-                                </div>
-                                <div class="slds-text-body_small slds-text-color_weak">
-                                    Based on {reviewCount} {reviewCount == 1 ? 'review' : 'reviews'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Reviews List -->
-                    <div class="reviews-container">
-                        <template for:each={reviews} for:item="review">
-                            <article key={review.Id} class="slds-box slds-box_x-small slds-m-bottom_small review-item">
-                                <div class="slds-grid slds-grid_vertical-align-start">
-                                    <div class="slds-col">
-                                        <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small">
-                                            <h3 class="slds-text-heading_small reviewer-name">
-                                                {review.Reviewer_Name__c}
-                                            </h3>
-                                            <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">
-                                                {review.formattedDate}
-                                            </span>
-                                        </div>
-
-                                        <div class="star-container slds-m-bottom_x-small">
-                                            <template for:each={review.stars} for:item="star">
-                                                <lightning-icon
-                                                    key={star.id}
-                                                    icon-name="utility:star"
-                                                    size="x-small"
-                                                    class={star.filled}
-                                                ></lightning-icon>
-                                            </template>
-                                            <span class="slds-m-left_x-small rating-text">{review.Rating__c}/5</span>
-                                        </div>
-
-                                        <p class="slds-text-body_regular review-comment">{review.Comment__c}</p>
-                                    </div>
-                                </div>
-                            </article>
-                        </template>
-                    </div>
-                </template>
-
-                <!-- No Reviews Message -->
-                <template lwc:if={isLoading}>
-                    <!-- Loading handled above -->
-                </template>
-                <template lwc:elseif={hasReviews}>
-                    <!-- Reviews handled above -->
-                </template>
-                <template lwc:else>
-                    <div class="slds-align_absolute-center slds-p-around_large">
-                        <div class="slds-text-color_weak">
-                            <lightning-icon
-                                icon-name="utility:info"
-                                size="small"
-                                class="slds-m-right_x-small"
-                            ></lightning-icon>
-                            No reviews yet for this book
-                        </div>
-                    </div>
-                </template>
+        <!-- Success Message -->
+        <template lwc:if={submitSuccess}>
+          <div
+            class="slds-notify slds-notify_toast slds-theme_success slds-m-bottom_medium success-toast"
+          >
+            <div class="slds-notify__content">
+              <lightning-icon
+                icon-name="utility:success"
+                size="small"
+                variant="inverse"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <span>Review submitted successfully!</span>
             </div>
+          </div>
+        </template>
 
-            <!-- Modal Footer -->
-            <footer class="slds-modal__footer">
-                <lightning-button variant="brand" label="Close" onclick={handleClose}></lightning-button>
-            </footer>
+        <!-- Write Review Button -->
+        <div class="slds-m-bottom_medium">
+          <lightning-button
+            label={toggleButtonLabel}
+            variant={toggleButtonVariant}
+            icon-name={toggleButtonIcon}
+            onclick={handleToggleForm}
+            class="write-review-btn"
+          ></lightning-button>
         </div>
-    </section>
-    <div class="slds-backdrop slds-backdrop_open"></div>
+
+        <!-- Review Submission Form -->
+        <template lwc:if={showForm}>
+          <div
+            class="slds-box slds-box_x-small slds-m-bottom_medium review-form"
+          >
+            <h3
+              class="slds-text-heading_small slds-m-bottom_small form-heading"
+            >
+              Submit Your Review
+            </h3>
+
+            <div class="slds-form">
+              <div class="slds-form-element slds-m-bottom_small">
+                <lightning-input
+                  label="Your Name"
+                  value={reviewerName}
+                  onchange={handleReviewerNameChange}
+                  required
+                  placeholder="Enter your name"
+                  max-length="255"
+                ></lightning-input>
+              </div>
+
+              <div class="slds-form-element slds-m-bottom_small">
+                <lightning-combobox
+                  label="Rating"
+                  value={rating}
+                  options={ratingOptions}
+                  onchange={handleRatingChange}
+                  required
+                  placeholder="Select a rating"
+                ></lightning-combobox>
+              </div>
+
+              <div class="slds-form-element slds-m-bottom_small">
+                <lightning-textarea
+                  label="Comment"
+                  value={comment}
+                  onchange={handleCommentChange}
+                  required
+                  placeholder="Share your thoughts about this book..."
+                  max-length="32768"
+                ></lightning-textarea>
+              </div>
+
+              <!-- Form Error -->
+              <template lwc:if={submitError}>
+                <div class="slds-text-color_error slds-m-bottom_small">
+                  <lightning-icon
+                    icon-name="utility:error"
+                    size="x-small"
+                    variant="error"
+                    class="slds-m-right_xx-small"
+                  ></lightning-icon>
+                  {submitError}
+                </div>
+              </template>
+
+              <lightning-button
+                label={submitButtonLabel}
+                variant="brand"
+                onclick={handleSubmitReview}
+                disabled={isSubmitting}
+                class="submit-btn"
+              ></lightning-button>
+            </div>
+          </div>
+        </template>
+
+        <!-- Reviews Summary -->
+        <template lwc:if={hasReviews}>
+          <div
+            class="slds-box slds-box_x-small slds-m-bottom_medium review-summary"
+          >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <div class="slds-col">
+                <div class="slds-text-heading_large average-rating">
+                  {averageRating}
+                </div>
+                <div class="star-container">
+                  <template for:each={averageStars} for:item="star">
+                    <lightning-icon
+                      key={star.id}
+                      icon-name="utility:star"
+                      size="small"
+                      class={star.filled}
+                    ></lightning-icon>
+                  </template>
+                </div>
+                <div class="slds-text-body_small review-count-text">
+                  Based on {reviewCountLabel}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews List -->
+          <div class="reviews-container">
+            <template for:each={reviews} for:item="review">
+              <article
+                key={review.Id}
+                class="slds-box slds-box_x-small slds-m-bottom_small review-item"
+              >
+                <div class="slds-grid slds-grid_vertical-align-start">
+                  <div class="slds-col">
+                    <div
+                      class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small"
+                    >
+                      <h3 class="slds-text-heading_small reviewer-name">
+                        {review.Reviewer_Name__c}
+                      </h3>
+                      <span
+                        class="slds-m-left_small slds-text-body_small review-date"
+                      >
+                        {review.formattedDate}
+                      </span>
+                    </div>
+
+                    <div class="star-container slds-m-bottom_x-small">
+                      <template for:each={review.stars} for:item="star">
+                        <lightning-icon
+                          key={star.id}
+                          icon-name="utility:star"
+                          size="x-small"
+                          class={star.filled}
+                        ></lightning-icon>
+                      </template>
+                      <span class="slds-m-left_x-small rating-text"
+                        >{review.Rating__c}/5</span
+                      >
+                    </div>
+
+                    <p class="slds-text-body_regular review-comment">
+                      {review.Comment__c}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </template>
+          </div>
+        </template>
+
+        <!-- No Reviews Message -->
+        <template lwc:if={isLoading}>
+          <!-- Loading handled above -->
+        </template>
+        <template lwc:elseif={hasReviews}>
+          <!-- Reviews handled above -->
+        </template>
+        <template lwc:else>
+          <div class="slds-align_absolute-center slds-p-around_large">
+            <div class="no-reviews-text">
+              <lightning-icon
+                icon-name="utility:info"
+                size="small"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              No reviews yet for this book. Be the first to write one!
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Modal Footer -->
+      <footer class="slds-modal__footer modal-footer">
+        <lightning-button
+          variant="brand"
+          label="Close"
+          onclick={handleClose}
+        ></lightning-button>
+      </footer>
+    </div>
+  </section>
+  <div class="slds-backdrop slds-backdrop_open"></div>
 </template>
