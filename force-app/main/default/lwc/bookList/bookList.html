@@ -1,0 +1,71 @@
+<template>
+    <lightning-card title="Book Library" icon-name="custom:custom14">
+        <!-- Loading Spinner -->
+        <template lwc:if={isLoading}>
+            <div class="slds-align_absolute-center slds-p-around_medium">
+                <lightning-spinner
+                    alternative-text="Loading books"
+                    size="medium"
+                ></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Error Message -->
+        <template lwc:if={hasError}>
+            <div class="slds-p-around_medium">
+                <div class="slds-text-color_error">
+                    <lightning-icon
+                        icon-name="utility:error"
+                        size="small"
+                        variant="error"
+                        class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    Error loading books. Please try again.
+                </div>
+            </div>
+        </template>
+
+        <!-- Book Grid -->
+        <template lwc:if={hasBooks}>
+            <div class="slds-p-around_small">
+                <div class="book-grid">
+                    <template for:each={books} for:item="book">
+                        <c-book-card
+                            key={book.Id}
+                            book={book}
+                            onbookselect={handleBookSelect}
+                        ></c-book-card>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <!-- No Books Message -->
+        <template lwc:if={isLoading}>
+            <!-- Loading handled above -->
+        </template>
+        <template lwc:elseif={hasBooks}>
+            <!-- Books handled above -->
+        </template>
+        <template lwc:else>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <div class="slds-text-color_weak">
+                    <lightning-icon
+                        icon-name="utility:info"
+                        size="small"
+                        class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    No books available
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+
+    <!-- Review Modal -->
+    <template lwc:if={selectedBookId}>
+        <c-book-review
+            book-id={selectedBookId}
+            onclosereview={handleCloseReviews}
+        ></c-book-review>
+    </template>
+</template>
