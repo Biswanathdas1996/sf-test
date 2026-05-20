@@ -430,4 +430,108 @@ private class BookControllerTest {
       'Exception message should indicate valid rating range'
     );
   }
+
+  @isTest
+  static void testCreateReview_RatingBelowMinimum() {
+    Book__c testBook = [SELECT Id FROM Book__c LIMIT 1];
+    Boolean exceptionThrown = false;
+    String exceptionMessage = '';
+
+    Test.startTest();
+    try {
+      BookController.createReview(testBook.Id, '0', 'Comment', 'Reviewer');
+      System.assert(false, 'Should have thrown AuraHandledException');
+    } catch (AuraHandledException e) {
+      exceptionThrown = true;
+      exceptionMessage = e.getMessage();
+    }
+    Test.stopTest();
+
+    System.assert(
+      exceptionThrown,
+      'Should throw AuraHandledException for rating below minimum'
+    );
+    System.assert(
+      exceptionMessage.contains('Rating must be between 1 and 5'),
+      'Exception message should indicate valid rating range'
+    );
+
+    // Verify no review was created
+    Integer reviewCount = [
+      SELECT COUNT()
+      FROM Review__c
+      WHERE Book__c = :testBook.Id
+    ];
+    System.assertEquals(
+      10,
+      reviewCount,
+      'Should not create review with invalid rating'
+    );
+  }
+
+  @isTest
+  static void testCreateReview_NonNumericRating() {
+    Book__c testBook = [SELECT Id FROM Book__c LIMIT 1];
+    Boolean exceptionThrown = false;
+    String exceptionMessage = '';
+
+    Test.startTest();
+    try {
+      BookController.createReview(testBook.Id, 'abc', 'Comment', 'Reviewer');
+      System.assert(false, 'Should have thrown AuraHandledException');
+    } catch (AuraHandledException e) {
+      exceptionThrown = true;
+      exceptionMessage = e.getMessage();
+    }
+    Test.stopTest();
+
+    System.assert(
+      exceptionThrown,
+      'Should throw AuraHandledException for non-numeric rating'
+    );
+    System.assert(
+      exceptionMessage.contains('Error creating review') ||
+        exceptionMessage.contains('Invalid') ||
+        exceptionMessage.contains('Rating'),
+      'Exception message should indicate rating error'
+    );
+
+    // Verify no review was created
+    Integer reviewCount = [
+      SELECT COUNT()
+      FROM Review__c
+      WHERE Book__c = :testBook.Id
+    ];
+    System.assertEquals(
+      10,
+      reviewCount,
+      'Should not create review with non-numeric rating'
+    );
+  }
+
+  @isTest
+  static void testCreateReview_NegativeRating() {
+    Book__c testBook = [SELECT Id FROM Book__c LIMIT 1];
+    Boolean exceptionThrown = false;
+    String exceptionMessage = '';
+
+    Test.startTest();
+    try {
+      BookController.createReview(testBook.Id, '-1', 'Comment', 'Reviewer');
+      System.assert(false, 'Should have thrown AuraHandledException');
+    } catch (AuraHandledException e) {
+      exceptionThrown = true;
+      exceptionMessage = e.getMessage();
+    }
+    Test.stopTest();
+
+    System.assert(
+      exceptionThrown,
+      'Should throw AuraHandledException for negative rating'
+    );
+    System.assert(
+      exceptionMessage.contains('Rating must be between 1 and 5'),
+      'Exception message should indicate valid rating range'
+    );
+  }
 }

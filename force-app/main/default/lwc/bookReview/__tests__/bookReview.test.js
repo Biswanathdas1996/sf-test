@@ -273,4 +273,257 @@ describe("c-book-review", () => {
       reviewerName: "Charlie"
     });
   });
+
+  it("displays validation error when form is submitted with empty fields", async () => {
+    const element = await createComponent();
+
+    getBookById.emit(MOCK_BOOK);
+    getReviewsForBook.emit(MOCK_REVIEWS);
+
+    await flushPromises();
+
+    // Open the form
+    const writeBtn = element.shadowRoot.querySelector(".write-review-btn");
+    writeBtn.click();
+    await flushPromises();
+
+    // Try to submit without filling fields
+    const submitBtn = element.shadowRoot.querySelector(".submit-btn");
+    submitBtn.click();
+    await flushPromises();
+
+    // Verify error message is displayed
+    const errorMessage = element.shadowRoot.querySelector(
+      ".review-form .slds-text-color_error"
+    );
+    expect(errorMessage).not.toBeNull();
+    expect(errorMessage.textContent).toContain("Please fill in all fields.");
+
+    // Verify createReview was NOT called
+    expect(createReview).not.toHaveBeenCalled();
+  });
+
+  it("hides form and resets state when cancel button is clicked", async () => {
+    const element = await createComponent();
+
+    getBookById.emit(MOCK_BOOK);
+    getReviewsForBook.emit(MOCK_REVIEWS);
+
+    await flushPromises();
+
+    // Open the form
+    const writeBtn = element.shadowRoot.querySelector(".write-review-btn");
+    writeBtn.click();
+    await flushPromises();
+
+    // Verify form is shown
+    let reviewForm = element.shadowRoot.querySelector(".review-form");
+    expect(reviewForm).not.toBeNull();
+
+    // Fill in some data
+    const nameInput = element.shadowRoot.querySelector("lightning-input");
+    nameInput.value = "Test";
+    nameInput.dispatchEvent(
+      new CustomEvent("change", { target: { value: "Test" } })
+    );
+
+    // Click cancel button (same button, now showing "Cancel")
+    const cancelBtn = element.shadowRoot.querySelector(".write-review-btn");
+    expect(cancelBtn.textContent).toContain("Cancel");
+    cancelBtn.click();
+    await flushPromises();
+
+    // Verify form is hidden
+    reviewForm = element.shadowRoot.querySelector(".review-form");
+    expect(reviewForm).toBeNull();
+  });
+
+  it("displays success message and resets form after successful submission", async () => {
+    createReview.mockResolvedValue({
+      Id: "a01000000000003AAA",
+      Rating__c: "5",
+      Comment__c: "Fantastic!",
+      Reviewer_Name__c: "David"
+    });
+
+    const element = await createComponent();
+
+    getBookById.emit(MOCK_BOOK);
+    getReviewsForBook.emit(MOCK_REVIEWS);
+
+    await flushPromises();
+
+    // Open the form
+    const writeBtn = element.shadowRoot.querySelector(".write-review-btn");
+    writeBtn.click();
+    await flushPromises();
+
+    // Fill in the form
+    const nameInput = element.shadowRoot.querySelector("lightning-input");
+    nameInput.value = "David";
+    nameInput.dispatchEvent(
+      new CustomEvent("change", { target: { value: "David" } })
+    );
+
+    const ratingCombo = element.shadowRoot.querySelector("lightning-combobox");
+    ratingCombo.value = "5";
+    ratingCombo.dispatchEvent(
+      new CustomEvent("change", { detail: { value: "5" } })
+    );
+
+    const commentTextarea =
+      element.shadowRoot.querySelector("lightning-textarea");
+    commentTextarea.value = "Fantastic!";
+    commentTextarea.dispatchEvent(
+      new CustomEvent("change", { target: { value: "Fantastic!" } })
+    );
+
+    await flushPromises();
+
+    // Submit the form
+    const submitBtn = element.shadowRoot.querySelector(".submit-btn");
+    submitBtn.click();
+    await flushPromises();
+
+    // Verify success message is displayed
+    const successToast = element.shadowRoot.querySelector(".success-toast");
+    expect(successToast).not.toBeNull();
+    expect(successToast.textContent).toContain(
+      "Review submitted successfully!"
+    );
+
+    // Verify form is hidden
+    const reviewForm = element.shadowRoot.querySelector(".review-form");
+    expect(reviewForm).toBeNull();
+
+    // Verify createReview was called
+    expect(createReview).toHaveBeenCalledWith({
+      bookId: "a00000000000001AAA",
+      rating: "5",
+      comment: "Fantastic!",
+      reviewerName: "David"
+    });
+  });
+
+  it("displays error message when review submission fails", async () => {
+    createReview.mockRejectedValue({
+      body: { message: "Failed to create review" }
+    });
+
+    const element = await createComponent();
+
+    getBookById.emit(MOCK_BOOK);
+    getReviewsForBook.emit(MOCK_REVIEWS);
+
+    await flushPromises();
+
+    // Open the form
+    const writeBtn = element.shadowRoot.querySelector(".write-review-btn");
+    writeBtn.click();
+    await flushPromises();
+
+    // Fill in the form
+    const nameInput = element.shadowRoot.querySelector("lightning-input");
+    nameInput.value = "Error User";
+    nameInput.dispatchEvent(
+      new CustomEvent("change", { target: { value: "Error User" } })
+    );
+
+    const ratingCombo = element.shadowRoot.querySelector("lightning-combobox");
+    ratingCombo.value = "3";
+    ratingCombo.dispatchEvent(
+      new CustomEvent("change", { detail: { value: "3" } })
+    );
+
+    const commentTextarea =
+      element.shadowRoot.querySelector("lightning-textarea");
+    commentTextarea.value = "Test comment";
+    commentTextarea.dispatchEvent(
+      new CustomEvent("change", { target: { value: "Test comment" } })
+    );
+
+    await flushPromises();
+
+    // Submit the form
+    const submitBtn = element.shadowRoot.querySelector(".submit-btn");
+    submitBtn.click();
+    await flushPromises();
+
+    // Verify error message is displayed
+    const errorMessage = element.shadowRoot.querySelector(
+      ".review-form .slds-text-color_error"
+    );
+    expect(errorMessage).not.toBeNull();
+    expect(errorMessage.textContent).toContain("Failed to create review");
+
+    // Verify form is still shown (not hidden on error)
+    const reviewForm = element.shadowRoot.querySelector(".review-form");
+    expect(reviewForm).not.toBeNull();
+  });
+
+  it("disables submit button and shows submitting text during submission", async () => {
+    // Create a promise we can control
+    let resolveSubmit;
+    const submitPromise = new Promise((resolve) => {
+      resolveSubmit = resolve;
+    });
+    createReview.mockReturnValue(submitPromise);
+
+    const element = await createComponent();
+
+    getBookById.emit(MOCK_BOOK);
+    getReviewsForBook.emit(MOCK_REVIEWS);
+
+    await flushPromises();
+
+    // Open the form and fill it
+    const writeBtn = element.shadowRoot.querySelector(".write-review-btn");
+    writeBtn.click();
+    await flushPromises();
+
+    const nameInput = element.shadowRoot.querySelector("lightning-input");
+    nameInput.value = "Test";
+    nameInput.dispatchEvent(
+      new CustomEvent("change", { target: { value: "Test" } })
+    );
+
+    const ratingCombo = element.shadowRoot.querySelector("lightning-combobox");
+    ratingCombo.value = "4";
+    ratingCombo.dispatchEvent(
+      new CustomEvent("change", { detail: { value: "4" } })
+    );
+
+    const commentTextarea =
+      element.shadowRoot.querySelector("lightning-textarea");
+    commentTextarea.value = "Test";
+    commentTextarea.dispatchEvent(
+      new CustomEvent("change", { target: { value: "Test" } })
+    );
+
+    await flushPromises();
+
+    // Submit the form
+    const submitBtn = element.shadowRoot.querySelector(".submit-btn");
+    submitBtn.click();
+
+    // Check immediately (before promise resolves)
+    await flushPromises();
+
+    // Verify button shows submitting state
+    expect(submitBtn.label).toBe("Submitting...");
+    expect(submitBtn.disabled).toBe(true);
+
+    // Resolve the promise
+    resolveSubmit({
+      Id: "a01000000000003AAA",
+      Rating__c: "4",
+      Comment__c: "Test",
+      Reviewer_Name__c: "Test"
+    });
+    await flushPromises();
+
+    // After completion, button should be enabled again (though form is hidden)
+    const reviewForm = element.shadowRoot.querySelector(".review-form");
+    expect(reviewForm).toBeNull();
+  });
 });
